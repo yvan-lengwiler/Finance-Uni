@@ -1,2 +1,2 @@
 # Week 3: Topic ...
-Files for exercised of week 3.
+Files for exercises of week 3.

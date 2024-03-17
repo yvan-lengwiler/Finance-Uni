@@ -1,2 +1,2 @@
 # Week 5: Topic ...
-Files for exercised of week 5.
+Files for exercises of week 5.

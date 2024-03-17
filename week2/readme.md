@@ -1,2 +1,2 @@
 # Week 2: Topic ...
-Files for exercised of week 2.
+Files for exercises of week 2.
