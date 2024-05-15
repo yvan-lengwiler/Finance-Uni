@@ -39,7 +39,7 @@ symbol    <- 'GM'               # General Motors
 #interval  <- '1wk'               # 1d, 1wk, or 1mo
 interval  <- '1mo'               # 1d, 1wk, or 1mo
 
-from_date <- '2010-01-01'
+from_date <- '2010-12-01'
 to_date   <- '2023-12-31'
 
 # **** number of observations per year ***************************************
