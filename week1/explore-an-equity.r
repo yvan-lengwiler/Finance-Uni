@@ -4,7 +4,7 @@
 # Inspecting stochastic properties of an equity
 #
 # This script downloads some stock market data from finance.yahoo.com and
-# performs a few simple analyses.
+# makes a few charts.
 #
 # Date: 2024-03-15
 # Author: Yvan Lengwiler
@@ -19,6 +19,7 @@ missing_packages <- !(packages %in% rownames(installed.packages()))
 if (any(missing_packages)) {install.packages(packages[missing_packages])}
 invisible(lapply(packages, library, character.only = TRUE))
 
+# THIS ONLY WORKS FROM WITHING RSTUDIO
 # select location of this file as working directory
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
@@ -86,6 +87,9 @@ axis(2)
 
 # annualized return rate from one observation to the next
 yield <- diff(log(price)) * factor
+mu <- mean(yield)       # mean return rate
+sigma <- sd(yield)      # volatility
+cat("mu =", round(100*mu,1), "%, sigma =", round(100*sigma,1), "%")
 
 # **** plot it ***************************************************************
 
@@ -95,24 +99,5 @@ plot(yield, main = paste("annualized", interval_name, "return of", symbol),
 labels <- dates[seq(1, length(dates)-1, factor)]
 axis(1, at=seq(1,length(dates)-1,factor), labels)
 axis(2)
-
-# **** compute density estimate and Q-Q plot *********************************
-
-# compute kernel and plot it
-density_estimate <- density(yield, kernel = "epanechnikov")
-plot(density_estimate,
-     main = paste("density estimate of", interval_name, "returns on", symbol))
-
-# plot normal density with same moments
-mu <- mean(yield)       # mean return rate
-sigma <- sd(yield)      # volatility
-cat("mu =", round(100*mu,1), "%, sigma =", round(100*sigma,1), "%")
-curve(dnorm(x, mean = mu, sd = sigma),
-      from = min(yield), to = max(yield), add = TRUE, col = 2)
-
-# make a Q-Q plot
-qqnorm(yield, cex=bullet_size, 
-       main = paste("Q-Q plot for", interval_name, "returns of", symbol))
-qqline(yield)
 
 cat('\n*** script has finished ***\n')
