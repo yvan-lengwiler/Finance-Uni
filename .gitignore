@@ -1,3 +1,6 @@
+*.r~
+*.R~
+*~
 temp.*
 README.pdf
 readme.pdf

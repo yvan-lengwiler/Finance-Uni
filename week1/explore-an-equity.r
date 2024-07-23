@@ -9,6 +9,11 @@
 # Date: 2024-03-15
 # Author: Yvan Lengwiler
 # License: GPL v2
+#
+# This script is unfinished. Please complete it according to the description
+# of the handout.
+# 
+# Add your name(n) and your Matr# here.
 # ----------------------------------------------------------------------------
 
 # **** preparations **********************************************************
@@ -19,9 +24,11 @@ missing_packages <- !(packages %in% rownames(installed.packages()))
 if (any(missing_packages)) {install.packages(packages[missing_packages])}
 invisible(lapply(packages, library, character.only = TRUE))
 
-# THIS ONLY WORKS FROM WITHING RSTUDIO
+# THIS ONLY WORKS FROM WITHIN RSTUDIO
 # select location of this file as working directory
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+if (.Platform$GUI == "RStudio") {
+    setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+}
 
 # **** parameters ************************************************************
 
@@ -99,5 +106,20 @@ plot(yield, main = paste("annualized", interval_name, "return of", symbol),
 labels <- dates[seq(1, length(dates)-1, factor)]
 axis(1, at=seq(1,length(dates)-1,factor), labels)
 axis(2)
+
+cat('\n*** script has finished ***\n')
+
+# **** compute density estimate and Q-Q plot *********************************
+
+# WORK FOR YOU TO COMPLETE HERE
+
+# compute kernel and plot it
+# ...
+
+# plot normal density with same moments
+# ...
+
+# make a Q-Q plot
+# ...
 
 cat('\n*** script has finished ***\n')
