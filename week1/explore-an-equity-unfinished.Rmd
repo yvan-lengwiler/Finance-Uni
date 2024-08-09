@@ -86,7 +86,7 @@ url <- paste0('https://query1.finance.yahoo.com/v7/finance/download/',
 
 data  <- read.csv(url, header=TRUE)
 price <- as.numeric(data$Adj.Close)
-dates <- data$Date
+dates <- as.Date(data$Date)
 ```
 
 # 3 Take a look at the data
@@ -94,11 +94,7 @@ dates <- data$Date
 Let us plot the data ...
 
 ```{r, plot price level}
-plot(1:length(price), log(price), main = symbol, 
-     type='l', axes = FALSE, xlab = "")
-labels <- dates[seq(1, length(dates), factor)]
-axis(1, at=seq(1,length(dates),factor), labels)
-axis(2)
+plot(dates, log(price), main = symbol, type='l')
 ```
 
 ... and the yields ...
@@ -108,11 +104,9 @@ axis(2)
 yield <- diff(log(price)) * factor
 # plot it
 bullet_size <- sqrt(150/length(yield))
-plot(yield, main = paste("annualized", interval_name, "return of", symbol),
-     pch=20, cex=bullet_size, axes = FALSE, xlab = "")
-labels <- dates[seq(1, length(dates)-1, factor)]
-axis(1, at=seq(1,length(dates)-1,factor), labels)
-axis(2)
+plot(dates[-1], yield, 
+     main = paste("annualized", interval_name, "return of", symbol),
+     pch=20, cex=bullet_size)
 ```
 
 # 4 Analyse the distribution of the yields

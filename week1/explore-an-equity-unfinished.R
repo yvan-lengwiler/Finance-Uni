@@ -66,7 +66,7 @@ interval_name <- switch(
         '1d'  = 'daily'
     )
 
-# **** constructing the url **************************************************
+# **** constructing the url (API for finance.yahoo.com) **********************
 
 basedate <- as.Date("1970-01-01")
 fromcode <- difftime(as.Date(from_date), basedate, units="secs")
@@ -80,32 +80,23 @@ url <- paste0('https://query1.finance.yahoo.com/v7/finance/download/',
 
 data  <- read.csv(url, header=TRUE)
 price <- as.numeric(data$Adj.Close)
-dates <- data$Date
+dates <- as.Date(data$Date)
 
 # **** plot it ***************************************************************
 
-plot(1:length(price), log(price), main = symbol, 
-     type='l', axes = FALSE, xlab = "")
-labels <- dates[seq(1, length(dates), factor)]
-axis(1, at=seq(1,length(dates),factor), labels)
-axis(2)
+plot(dates, log(price), main = symbol, type='l')
 
 # **** compute returns *******************************************************
 
 # annualized return rate from one observation to the next
 yield <- diff(log(price)) * factor
-mu <- mean(yield)       # mean return rate
-sigma <- sd(yield)      # volatility
-cat("mu =", round(100*mu,1), "%, sigma =", round(100*sigma,1), "%")
 
 # **** plot it ***************************************************************
 
 bullet_size <- sqrt(150/length(yield))
-plot(yield, main = paste("annualized", interval_name, "return of", symbol),
-     pch=20, cex=bullet_size, axes = FALSE, xlab = "")
-labels <- dates[seq(1, length(dates)-1, factor)]
-axis(1, at=seq(1,length(dates)-1,factor), labels)
-axis(2)
+plot(dates[-1], yield, 
+     main = paste("annualized", interval_name, "return of", symbol),
+     pch=20, cex=bullet_size)
 
 # **** compute density estimate and Q-Q plot *********************************
 
