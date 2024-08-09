@@ -1,23 +1,22 @@
-#!/usr/bin/Rscript
+---
+title: "Inspecting stochastic properties of an equity"
+author: "add your name and Matr number"
+date: "add the date"
+license: "GPL v2"
+output:
+    html_document: default
+    word_document: default
+    pdf_document: default
+---
 
-# ----------------------------------------------------------------------------
-# Inspecting stochastic properties of an equity
-#
-# This script downloads some stock market data from finance.yahoo.com and
-# makes a few charts.
-#
-# Date: 2024-03-15
-# Author: Yvan Lengwiler
-# License: GPL v2
-#
-# This script is unfinished. Please complete it according to the description
-# of the handout.
-# 
-# Add your name(n) and your Matr# here.
-# ----------------------------------------------------------------------------
+This script downloads some stock market data from finance.yahoo.com and performs a few simple analyses.
 
-# **** preparations **********************************************************
+**
+This script is unfinished.
+Please complete it according to the discrition in the handout.
+**
 
+```{r setup, include=FALSE}
 # install and load some packages if they are missing
 packages <- c('rstudioapi','curl') 
 missing_packages <- !(packages %in% rownames(installed.packages()))
@@ -29,9 +28,13 @@ invisible(lapply(packages, library, character.only = TRUE))
 if (.Platform$GUI == "RStudio") {
     setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 }
+```
 
-# **** parameters ************************************************************
+# 1 Parameters
 
+We begin by setting some parameters. These parameters will determine what the script does exactly.
+
+```{r, set parameters}
 #symbol    <- 'AMD'              # Advanced Micro Devices
 #symbol    <- 'GOOG'             # Alphabet
 #symbol    <- 'NESN.SW'          # Nestlé
@@ -49,10 +52,11 @@ interval  <- '1mo'               # 1d, 1wk, or 1mo
 
 from_date <- '2010-12-01'
 to_date   <- '2023-12-31'
+```
 
-# **** number of observations per year ***************************************
+Next we set the variables `factor` and `interval_name` depending on the chosen observation frequency.
 
-# we will use this later
+```{r, helper functions}
 factor <- switch(
     interval,
         '1mo' = 12,           # number of trading months
@@ -65,9 +69,13 @@ interval_name <- switch(
         '1wk' = 'weekly',
         '1d'  = 'daily'
     )
+```
 
-# **** constructing the url **************************************************
+# 2 Acquire data
 
+We now download the relevant data from `https://finance.yahoo.com`. We first construct the URL that conforms to yahoo's API and then download the data and assign in to a variable in R using `read.csv`.
+
+```{r, download data}
 basedate <- as.Date("1970-01-01")
 fromcode <- difftime(as.Date(from_date), basedate, units="secs")
 tocode   <- difftime(as.Date(to_date), basedate, units="secs")
@@ -76,50 +84,51 @@ url <- paste0('https://query1.finance.yahoo.com/v7/finance/download/',
     symbol, "?period1=", fromcode, "&period2=", tocode, 
     "&interval=", interval, "&events=history&includeAdjustedClose=true")
 
-# **** acquire data **********************************************************
-
 data  <- read.csv(url, header=TRUE)
 price <- as.numeric(data$Adj.Close)
 dates <- data$Date
+```
 
-# **** plot it ***************************************************************
+# 3 Take a look at the data
 
+Let us plot the data ...
+
+```{r, plot price level}
 plot(1:length(price), log(price), main = symbol, 
      type='l', axes = FALSE, xlab = "")
 labels <- dates[seq(1, length(dates), factor)]
 axis(1, at=seq(1,length(dates),factor), labels)
 axis(2)
+```
 
-# **** compute returns *******************************************************
+... and the yields ...
 
+```{r, compute and plot yields}
 # annualized return rate from one observation to the next
 yield <- diff(log(price)) * factor
-mu <- mean(yield)       # mean return rate
-sigma <- sd(yield)      # volatility
-cat("mu =", round(100*mu,1), "%, sigma =", round(100*sigma,1), "%")
-
-# **** plot it ***************************************************************
-
+# plot it
 bullet_size <- sqrt(150/length(yield))
 plot(yield, main = paste("annualized", interval_name, "return of", symbol),
      pch=20, cex=bullet_size, axes = FALSE, xlab = "")
 labels <- dates[seq(1, length(dates)-1, factor)]
 axis(1, at=seq(1,length(dates)-1,factor), labels)
 axis(2)
+```
 
-cat('\n*** script has finished ***\n')
+# 4 Analyse the distribution of the yields
 
-# **** compute density estimate and Q-Q plot *********************************
+Here we compute the Q-Q plot of the yields (against the hypothesis of a normal distribution), and we also plot the Kernel estimate, showing us the empirical density of the yield data.
 
-# WORK FOR YOU TO COMPLETE HERE
+**WORK FOR YOU TO COMPLETE HERE**
 
-# compute kernel and plot it
+```{r, kernel}
+# compute kernel
 # ...
-
-# plot normal density with same moments
+# plot it
 # ...
+```
 
+```{r, Q-Q}
 # make a Q-Q plot
 # ...
-
-cat('\n*** script has finished ***\n')
+```
