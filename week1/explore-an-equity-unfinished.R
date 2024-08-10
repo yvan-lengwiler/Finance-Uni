@@ -84,7 +84,9 @@ dates <- as.Date(data$Date)
 
 # **** plot it ***************************************************************
 
-plot(dates, log(price), main = symbol, type='l')
+plot(dates, log(price), main = symbol, type='l', axes = FALSE)
+axis.Date(1, dates, at = seq(dates[1], dates[length(dates)], "years"))
+axis(2)
 
 # **** compute returns *******************************************************
 
@@ -96,7 +98,9 @@ yield <- diff(log(price)) * factor
 bullet_size <- sqrt(150/length(yield))
 plot(dates[-1], yield, 
      main = paste("annualized", interval_name, "return of", symbol),
-     pch=20, cex=bullet_size)
+     pch=20, cex=bullet_size, axes = FALSE)
+axis.Date(1, dates[-1], at = seq(dates[2], dates[length(dates)], "years"))
+axis(2)
 
 # **** compute density estimate and Q-Q plot *********************************
 
