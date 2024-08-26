@@ -2,7 +2,7 @@
 title: "Inspecting stochastic properties of an equity"
 author: "add your name and Matr number"
 date: "add the date"
-license: "GPL v2"
+license: "MIT"
 output:
     pdf_document: default
     word_document: default

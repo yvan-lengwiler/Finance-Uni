@@ -8,7 +8,7 @@
 #
 # Date: 2024-03-15
 # Author: Yvan Lengwiler
-# License: GPL v2
+# License: MIT
 #
 # This script is unfinished. Please complete it according to the description
 # of the handout.
