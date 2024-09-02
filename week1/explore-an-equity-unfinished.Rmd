@@ -1,3 +1,4 @@
+#!/usr/bin/env KnitWrapper.sh
 ---
 title: "Inspecting stochastic properties of an equity"
 author: "add your name and Matr number"
