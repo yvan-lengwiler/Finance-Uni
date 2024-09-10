@@ -1,17 +1,18 @@
----
-title: "Inspecting stochastic properties of an equity"
-author: "your name and matr number"
-date: "the date"
-license: "MIT"
-output:
-    pdf_document: default
-    word_document: default
-    html_document: default
----
+#!/usr/bin/Rscript
 
-This script downloads some stock market data from finance.yahoo.com and performs a few simple analyses.
+# ----------------------------------------------------------------------------
+# Inspecting stochastic properties of an equity
+#
+# This script downloads some stock market data from finance.yahoo.com and
+# performs a few simple analyses.
+#
+# Date: 2024-09-09
+# Author: Yvan Lengwiler
+# License: MIT
+# ----------------------------------------------------------------------------
 
-```{r setup, include=FALSE}
+# **** preparations **********************************************************
+
 # install and load some packages if they are missing
 packages <- c('yfR','scales','here','curl') 
 missing_packages <- !(packages %in% rownames(installed.packages()))
@@ -20,13 +21,9 @@ invisible(lapply(packages, library, character.only = TRUE))
 
 # select location of this file as working directory
 setwd(here())
-```
 
-# 1 Parameters
+# **** parameters ************************************************************
 
-We begin by setting some parameters. These parameters will determine what the script does exactly.
-
-```{r, set parameters}
 #symbol    <- 'AMD'              # Advanced Micro Devices
 #symbol    <- 'GOOG'             # Alphabet
 #symbol    <- 'NESN.SW'          # Nestlé
@@ -42,11 +39,10 @@ interval  <- 'monthly'           # daily, weekly, monthly
 
 from_date <- '2010-12-01'
 to_date   <- '2023-12-31'
-```
+#to_date   <- '2024-08-26'
 
-Next we set the variables `factor` and `interval` depending on the chosen observation frequency.
+# **** number of observations per year ***************************************
 
-```{r, helper functions}
 # we will use this later
 factor <- switch(
     interval,
@@ -54,13 +50,9 @@ factor <- switch(
         'weekly'  = 365.25/7,    # number of trading weeks
         'daily'   = 365.25*5/7   # number of trading days
     )
-```
 
-# 2 Acquire data
+# **** acquire data from finance.yahoo.com ***********************************
 
-We now download the relevant data from `https://finance.yahoo.com`. We first construct the URL that conforms to yahoo's API and then download the data and assign in to a variable in R using `read.csv`.
-
-```{r, download data}
 data <- yf_get(
     tickers = symbol,
     first_date = from_date,
@@ -71,35 +63,44 @@ data <- yf_get(
 )
 price <- as.numeric(data$price_adjusted)
 dates <- as.Date(data$ref_date)
-```
 
-# 3 Take a look at the data
+# **** plot it ***************************************************************
 
-Let us plot the data ...
-
-```{r, plot price level}
 plot(dates, log(price), main = symbol, type='l', axes = FALSE)
 axis.Date(1, dates, at = seq(dates[1], dates[length(dates)], "years"))
 axis(2)
-```
 
-... and the yields ...
+# **** compute returns *******************************************************
 
-```{r, compute and plot yields}
 # annualized return rate from one observation to the next
 yield <- diff(log(price)) * factor
-# plot it
+
+# **** plot it ***************************************************************
+
 bullet_size <- sqrt(150/length(yield))
 plot(dates[-1], yield, 
      main = paste("annualized", interval, "return of", symbol),
      pch=20, cex=bullet_size, axes = FALSE)
 axis.Date(1, dates[-1], at = seq(dates[2], dates[length(dates)], "years"))
 axis(2)
-```
 
-# 4 Analyse the distribution of the yields
+# **** compute density estimate and Q-Q plot *********************************
 
-Here is where you should complete the program.
-Compute the kernel estimate and plot it.
-Then create a Q-Q plot to compare the distribution with the normal distribution.
+# compute kernel and plot it
+density_estimate <- density(yield, kernel = "epanechnikov")
+plot(density_estimate,
+     main = paste("density estimate of", interval, "returns on", symbol))
 
+# plot normal density with same moments
+mu <- mean(yield)       # mean return rate
+sigma <- sd(yield)      # volatility
+cat("mu =", round(100*mu,1), "%, sigma =", round(100*sigma,1), "%")
+curve(dnorm(x, mean = mu, sd = sigma),
+      from = min(yield), to = max(yield), add = TRUE, col = 2)
+
+# make a Q-Q plot
+qqnorm(yield, cex=bullet_size, 
+       main = paste("Q-Q plot for", interval, "returns of", symbol))
+qqline(yield)
+
+cat('\n*** script has finished ***\n')

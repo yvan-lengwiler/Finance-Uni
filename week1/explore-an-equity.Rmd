@@ -1,7 +1,8 @@
+#!/usr/bin/env KnitWrapper.sh
 ---
 title: "Inspecting stochastic properties of an equity"
-author: "your name and matr number"
-date: "the date"
+author: "Yvan Lengwiler"
+date: "2024-03-15"
 license: "MIT"
 output:
     pdf_document: default
@@ -99,7 +100,25 @@ axis(2)
 
 # 4 Analyse the distribution of the yields
 
-Here is where you should complete the program.
-Compute the kernel estimate and plot it.
-Then create a Q-Q plot to compare the distribution with the normal distribution.
+Here we compute the Q-Q plot of the yields (against the hypothesis of a normal distribution), and we also plot the Kernel estimate, showing us the empirical density of the yield data.
 
+```{r, kernel}
+# compute kernel
+density_estimate <- density(yield, kernel = "epanechnikov")
+# plot it
+plot(density_estimate,
+     main = paste("density estimate of", interval, "returns on", symbol))
+# plot normal density with same moments
+mu <- mean(yield)       # mean return rate
+sigma <- sd(yield)      # volatility
+cat("mu =", round(100*mu,1), "%, sigma =", round(100*sigma,1), "%")
+curve(dnorm(x, mean = mu, sd = sigma),
+      from = min(yield), to = max(yield), add = TRUE, col = 2)
+```
+
+```{r, Q-Q}
+# make a Q-Q plot
+qqnorm(yield, cex=bullet_size, 
+       main = paste("Q-Q plot for", interval, "returns of", symbol))
+qqline(yield)
+```
