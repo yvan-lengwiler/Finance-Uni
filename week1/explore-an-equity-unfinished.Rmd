@@ -44,21 +44,9 @@ from_date <- '2010-12-01'
 to_date   <- '2023-12-31'
 ```
 
-Next we set the variables `factor` and `interval` depending on the chosen observation frequency.
-
-```{r, helper functions}
-# we will use this later
-factor <- switch(
-    interval,
-        'monthly' = 12,          # number of trading months
-        'weekly'  = 365.25/7,    # number of trading weeks
-        'daily'   = 365.25*5/7   # number of trading days
-    )
-```
-
 # 2 Acquire data
 
-We now download the relevant data from `https://finance.yahoo.com`. We first construct the URL that conforms to yahoo's API and then download the data and assign in to a variable in R using `read.csv`.
+We now download the relevant data from `https://finance.yahoo.com`. We use the `yfR` library for this.
 
 ```{r, download data}
 data <- yf_get(
@@ -87,6 +75,12 @@ axis(2)
 
 ```{r, compute and plot yields}
 # annualized return rate from one observation to the next
+factor <- switch(
+    interval,
+        'monthly' = 12,          # number of trading months
+        'weekly'  = 365.25/7,    # number of trading weeks
+        'daily'   = 365.25*5/7   # number of trading days
+    )
 yield <- diff(log(price)) * factor
 # plot it
 bullet_size <- sqrt(150/length(yield))

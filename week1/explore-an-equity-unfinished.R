@@ -46,16 +46,6 @@ from_date <- '2010-12-01'
 to_date   <- '2023-12-31'
 #to_date   <- '2024-08-26'
 
-# **** number of observations per year ***************************************
-
-# we will use this later
-factor <- switch(
-    interval,
-        'monthly' = 12,          # number of trading months
-        'weekly'  = 365.25/7,    # number of trading weeks
-        'daily'   = 365.25*5/7   # number of trading days
-    )
-
 # **** acquire data from finance.yahoo.com ***********************************
 
 data <- yf_get(
@@ -78,6 +68,13 @@ axis(2)
 # **** compute returns *******************************************************
 
 # annualized return rate from one observation to the next
+factor <- switch(
+    interval,
+        'monthly' = 12,          # number of trading months
+        'weekly'  = 365.25/7,    # number of trading weeks
+        'daily'   = 365.25*5/7   # number of trading days
+    )
+
 yield <- diff(log(price)) * factor
 
 # **** plot it ***************************************************************
