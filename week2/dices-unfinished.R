@@ -34,14 +34,14 @@ barplot(prob)
 # 2) For each throw, compute the sum of the d dices (store these sums in a
 #    vector called 's')
 # 3) Plot the density, as we did last week (with 'density' and 'plot')
-# 4) Rund the following for different d: 2,4,10,100
+# 4) Run the following for different d: 2,4,10,100
 
 d <- 4       # number of dices
 
 # WORK FOR YOU HERE:
-# Cdd a few lines here to simulate n throws of d dices
-# Compute the sume of the thrown eyes of the dices and put this into
-# a vector calles 's'.
+# Add a few lines here to simulate n throws of d dices
+# Compute the sums of the thrown eyes of the dices and put this into
+# a vector called 's'.
 
 # ...
 

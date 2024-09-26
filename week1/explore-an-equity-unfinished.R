@@ -40,6 +40,7 @@ symbol    <- 'GM'               # General Motors
 #symbol    <- 'BTC-USD'          # BTC in USD
 #symbol    <- 'CHFUSD=X'         # CHF-USD FX
 
+interval  <- 'daily'           # daily, weekly, monthly
 interval  <- 'monthly'           # daily, weekly, monthly
 
 from_date <- '2010-12-01'
