@@ -34,7 +34,7 @@
 # **** preparations **********************************************************
 
 # install and load some packages if they are missing
-packages <- c('rstudioapi','curl','collapse','quadprog')
+packages <- c('yfR','scales','here','rstudioapi','curl','collapse','quadprog')
 missing_packages <- !(packages %in% rownames(installed.packages()))
 if (any(missing_packages)) {install.packages(packages[missing_packages])}
 invisible(lapply(packages, library, character.only = TRUE))
@@ -54,40 +54,37 @@ assets    <- c('^GSPC', 'AAPL','MSFT','AMZN','GOOGL','TSLA','BRK-B','JPM',
 nassets   <- length(assets)
 
 from_date <- '2010-12-01'
+to_date   <- '2023-12-31'
 to_date   <- '2024-04-30'
-interval  <- '1mo'               # 1d, 1wk, or 1mo
+interval  <- 'monthly'
 
-# **** number of observations per year ***************************************
-# we will use this later
+# **** download data from finance.yahoo.com ***********************************
+
 factor <- switch(
     interval,
-        '1mo' = 12,           # number of trading months
-        '1wk' = 365.25/7,     # number of trading weeks
-        '1d'  = 365.25*5/7    # number of trading days
-)
-
-# **** acquire data **********************************************************
-
-basedate  <- as.Date("1970-01-01")
-fromcode  <- difftime(as.Date(from_date), basedate, units="secs")
-tocode    <- difftime(as.Date(to_date), basedate, units="secs")
+        'monthly' = 12,          # number of trading months
+        'weekly'  = 365.25/7,    # number of trading weeks
+        'daily'   = 365.25*5/7   # number of trading days
+    )
 
 price <- NULL
-for (symbol in assets) {
-    url <- paste0('https://query1.finance.yahoo.com/v7/finance/download/',
-        symbol, "?period1=", fromcode, "&period2=", tocode, 
-        "&interval=", interval, "&events=history&includeAdjustedClose=true")
-    data <- read.csv(url, header=TRUE, row.names='Date')
+    for (symbol in assets) {
+    data <- yf_get(
+        tickers = symbol,
+        first_date = from_date,
+        last_date = to_date,
+        freq_data = interval,
+        do_cache = TRUE,
+        be_quiet = TRUE
+    )
     cat(sprintf('%s: %i observations\n', symbol, nrow(data)))
-    price <- cbind(price, data$Adj.Close)
+    price <- cbind(price, data$price_adjusted)
 }
 cat("Make sure that all assets have the same number of observations!\n")
+dates <- as.Date(data$ref_date)
 colnames(price) <- assets
 rownames(price) <- rownames(data)
-
-# **** compute returns *******************************************************
-
-yield <- diff(log(price)) * factor  # log diff (= growth rate)
+yield <- diff(log(price)) * factor
 
 # **** compute moments *******************************************************
 # compute vector of mean returns and covariance matrix
