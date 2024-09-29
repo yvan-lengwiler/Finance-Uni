@@ -6,14 +6,9 @@
 # This script downloads some stock market data from finance.yahoo.com and
 # them fits a GARCH(1,1)to the data. It also produces some informative charts.
 #
-# This script is almost finished. You just need to complete the function GARCH
-# below.
-#
 # Date: 2024-03-15
 # Author: Yvan Lengwiler
 # License: MIT
-#
-# Add your names here.
 # -----------------------------------------------------------------------------
 
 # **** preparations ***********************************************************
@@ -25,13 +20,7 @@ if (any(missing_packages)) {install.packages(packages[missing_packages])}
 invisible(lapply(packages, library, character.only = TRUE))
 
 # select location of this file as working directory
-# setwd(here())
-
-# THIS ONLY WORKS FROM WITHIN RSTUDIO
-# select location of this file as working directory
-if (.Platform$GUI == "RStudio") {
-    setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-}
+setwd(here())
 
 # **** parameters *************************************************************
 
@@ -79,8 +68,8 @@ yield <- diff(log(price)) * factor
 
 # **** estimate GARCH *********************************************************
 
-# param is a vector of five parameters: mu, omega, alpha, beta, and sigma2
-# at the first date (initial_sigma2) of the sample.
+# param is a vector of four parameters: omega, alpha, beta, and initial_sigma2
+# (this is the variance at the first date of the sample).
 #
 # An initial param has to be supplied for the estimation. The estimation
 # algorithm returns an optimized parameter vector.
@@ -105,16 +94,34 @@ GARCH <- function(param, eps) {
     omega       <- param[1]
     alpha       <- param[2]
     beta        <- param[3]
+    # remove the following line if you want to set sigma2[1] equal to
+    # unconditional variance
     init_sigma2 <- param[4]
     
-    # WORK FOR YOU HERE
-    # Program the GARCH process for sigma2 here and compute the log likelihood
-    # for each observed period.
+    # number of observations
+    nobs        <- length(eps)
+     
+    # declare some empty vectors
+    logL        <- rep(NA, times=nobs)
+    sigma2      <- rep(NA, times=nobs)
     
-    # ...
+    # initial variance
+    sigma2[1]   <- init_sigma2
+    # alternatively, set sigma2[1] equal to unconditional variance:
+    # sigma2[1] <- omega / (1 - alpha - beta)
+    
+    # compute likelihood at t=1
+    logL[1]     <- dnorm(eps[1], mean=0, sd=sqrt(sigma2[1]), log=TRUE)
+        
+    # compute likelihood sequentially for t=2 and later
+    for (t in 2:nobs) {
+        # variance eq of the GARCH model
+        sigma2[t] <- omega + alpha * eps[t-1]^2 + beta * sigma2[t-1]
+        # likelihood function
+        logL[t] <- dnorm(eps[t], mean=0, sd=sqrt(sigma2[t]), log=TRUE)
+    }
     
     # return results
-    # These should be two vectors, with one entry for each observed date.
     return(list("logL"=logL, "sigma2"=sigma2))
 }
 
@@ -132,8 +139,8 @@ negLL <- function(param, eps) {
 # compatible with the variance of the sample data, var(yield).
 param <- c(
     var(yield) * (1 - 0.9),  # omega
-    0.1,                      # alpha
-    0.8,                      # beta
+    0.1,                     # alpha
+    0.8,                     # beta
     var(yield)               # initial sigma2
 )
 
@@ -141,8 +148,8 @@ param <- c(
 mu  <- mean(yield)
 eps <- yield - mu
 out <- nlminb(param, negLL, eps=eps,
-    lower=c(0,0,0), upper=c(Inf,1,1),
-    control=list("iter.max"=1000, "eval.max"=1200))
+    lower=c(0,0,0,0), upper=c(Inf,1,1,Inf),
+    control=list("iter.max"=1000, "eval.max"=2000))
 
 # **** report results *********************************************************
 
@@ -160,7 +167,7 @@ if (out$convergence != 0) {
 # extract optimized parameters
 omega       <- out$par[1]
 alpha       <- out$par[2]
-ea        <- out$par[3]
+beta        <- out$par[3]
 init_sigma2 <- out$par[4]
 
 # extract eps and sigma of optimized process
@@ -185,6 +192,52 @@ cat(' unconditional volatility =', sqrt(omega/(1-alpha-beta)), '\n\n')
 
 # **** make some charts *******************************************************
 
-# ...
+# # plot eps
+# #bullet_size <- sqrt(150/length(eps))
+# plot(eps, main = paste("GARCH residuals of", symbol),
+#     type='l', axes=FALSE, xlab='', col='grey')
+#     #pch=20, cex=bullet_size, axes=FALSE, xlab='', col='grey')
+# labels <- dates[seq(1, length(dates), factor)]
+# axis(1, at=seq(1,length(dates),factor), labels)
+# axis(2)
+# 
+# # plot sigma
+# plot(sigma, main = paste("GARCH volatility of", symbol),
+#     type='l', axes=FALSE, xlab='', col='red')
+# labels <- dates[seq(1, length(dates), factor)]
+# axis(1, at=seq(1,length(dates),factor), labels)
+# axis(2)
+
+# plot eps together with sigma
+plot(eps, main = paste("GARCH residuals of", symbol),
+    type='l', axes=FALSE, xlab='', col='grey')
+labels <- dates[seq(1, length(dates), factor)]
+axis(1, at=seq(1,length(dates),factor), labels)
+axis(2)
+# put plus minus sigma on top of this chart
+lines(+sigma, type='l', col='red')
+lines(-sigma, type='l', col='red')
+
+# plot eps/sigma
+std_eps = eps/sigma
+plot(std_eps, main = paste("GARCH standardized residuals of", symbol),
+    type='l', axes=FALSE, xlab='', col='grey')
+labels <- dates[seq(1, length(dates), factor)]
+axis(1, at=seq(1,length(dates),factor), labels)
+axis(2)
+
+# compute kernel and plot it
+density_estimate <- density(std_eps, kernel = "epanechnikov")
+plot(density_estimate,
+    main = paste("density estimate of standardized GARCH residuals on",
+        symbol))
+# plot standard normal density on top of previous chart
+curve(dnorm(x, mean=0.0, sd=1.0),
+    from=min(std_eps), to=max(std_eps), add=TRUE, col='red')
+
+# make a Q-Q plot
+qqnorm(std_eps,
+    main = paste("Q-Q plot for standardized GARCH residuals of", symbol))
+qqline(std_eps)
 
 cat(' *** script has finished ***\n')
