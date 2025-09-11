@@ -2,13 +2,13 @@
 
 ---
 title: "Simulation of an equity"
-author: "Yvan Lengwiler"
+author: "Your Name"
 date: "2025-09-11"
 license: "MIT"
-output:
-    html_document: default
-    word_document: default
-    pdf_document: default
+output: pdf_document
+geometry: a4paper
+fontsize: 12pt
+fontfamily: charter
 ---
 
 This script downloads some stock market data from finance.yahoo.com and then performs a Monte Carlo simulation.
