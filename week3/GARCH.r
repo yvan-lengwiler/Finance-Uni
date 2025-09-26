@@ -9,8 +9,8 @@
 # This script is almost finished. You just need to complete the function GARCH
 # below.
 #
-# Date: 2024-03-15
-# Author: Yvan Lengwiler
+# Date: 2025-09-25
+# Author: your name
 # License: MIT
 #
 # Add your names here.
@@ -25,13 +25,13 @@ if (any(missing_packages)) {install.packages(packages[missing_packages])}
 invisible(lapply(packages, library, character.only = TRUE))
 
 # select location of this file as working directory
-# setwd(here())
+setwd(here())
 
-# THIS ONLY WORKS FROM WITHIN RSTUDIO
-# select location of this file as working directory
-if (.Platform$GUI == "RStudio") {
-    setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-}
+## THIS ONLY WORKS FROM WITHIN RSTUDIO
+## select location of this file as working directory
+#if (.Platform$GUI == "RStudio") {
+#    setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#}
 
 # **** parameters *************************************************************
 
@@ -48,11 +48,8 @@ symbol    <- 'UBSG.SW'          # UBS Group, SIX
 #symbol    <- 'BTC-USD'          # BTC in USD
 #symbol    <- 'CHFUSD=X'         # CHF-USD FX
 
-from_date <- '2010-12-01'
-to_date   <- '2023-12-31'
 from_date <- '2005-01-01'
-to_date   <- '2024-04-30'
-to_date   <- '2025-09-22'
+to_date   <- '2025-09-23'
 interval  <- 'daily'
 
 # number of observations per year
@@ -184,8 +181,7 @@ cat(' 1-alpha-beta =', 1-alpha-beta, '\n\n')
 cat(' initial volatility (t=1) =', sqrt(init_sigma2), '\n')
 cat(' unconditional volatility =', sqrt(omega/(1-alpha-beta)), '\n\n')
 
-# **** make some charts *******************************************************
+# **** make a chart ***********************************************************
 
-# ...
+# plot eps together with +sigma and -sigma in one chart
 
-cat(' *** script has finished ***\n')
